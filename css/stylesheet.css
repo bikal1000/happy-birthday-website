@@ -1260,12 +1260,328 @@ audio {
 	bottom: 0;
 	padding:10px 0px 10px 0px;
 }
-#play, #bannar_coming, #balloons_flying,#cake_fadein,#light_candle,#wish_message,#story {
+#play, #bannar_coming, #balloons_flying,#cake_fadein,#light_candle,#cut_cake,#wish_message,#story {
 	display: none;
 }
 
 .cake-cover {
 	margin-top: 50px;
+}
+
+/* ============================================== CAKE CUTTING
+   Cake is drawn as two independent pieces stacked on the same 300x300
+   canvas as .cake. Cut line sits at x=180. Each piece carries its own
+   frosting + sponge so they can be transformed apart as whole slices.
+*/
+.piece {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	will-change: transform;
+}
+
+.piece-main {
+	transition: transform 0.9s ease;
+}
+
+.piece-slice {
+	/* pivot on the cut corner sitting on the plate so the slice never sinks through it */
+	transform-origin: 180px 300px;
+	transition: transform 1.1s cubic-bezier(0.34, 0.8, 0.4, 1);
+}
+
+/* ---------- frosting ---------- */
+.piece .frosting {
+	position: absolute;
+	top: 180px;
+	height: 37.5px;
+	background: #ece7e3;
+	z-index: 10;
+}
+
+.piece-main .frosting {
+	left: 67px;
+	width: 113px;
+	border-radius: 19px 0 0 19px;
+}
+
+.piece-slice .frosting {
+	left: 180px;
+	width: 53px;
+	border-radius: 0 19px 19px 0;
+}
+
+/* frosting drip */
+.piece .frosting:before {
+	content: "";
+	position: absolute;
+	background: #ece7e3;
+	border-radius: 300px;
+	width: 15px;
+	height: 30px;
+	top: 20px;
+}
+
+.piece-main .frosting:before {
+	left: 26px;
+}
+
+.piece-slice .frosting:before {
+	right: 12px;
+}
+
+/* frosting cut face - hidden until the pieces actually part */
+.piece .frosting:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	width: 5px;
+	height: 100%;
+	background: #dcd5cf;
+	opacity: 0;
+	transition: opacity 0.25s linear;
+}
+
+.piece-main .frosting:after {
+	right: 0;
+}
+
+.piece-slice .frosting:after {
+	left: 0;
+}
+
+/* ---------- sponge ---------- */
+.piece .sponge {
+	position: absolute;
+	bottom: 0;
+	height: 100px;
+	background-color: #6d3826;
+	background-image:
+		linear-gradient(rgba(236, 231, 227, 0.6), rgba(236, 231, 227, 0.6)),
+		linear-gradient(rgba(236, 231, 227, 0.6), rgba(236, 231, 227, 0.6));
+	background-size: 100% 15px, 100% 15px;
+	background-position: 0 30px, 0 60px;
+	background-repeat: no-repeat;
+}
+
+.piece-main .sponge {
+	left: 75px;
+	width: 105px;
+}
+
+.piece-slice .sponge {
+	left: 180px;
+	width: 45px;
+}
+
+/* exposed cross-section revealed once the pieces separate */
+.piece .sponge:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	width: 11px;
+	height: 100%;
+	z-index: 2;
+	opacity: 0;
+	transition: opacity 0.25s linear;
+	/* bands line up with the sponge's front stripes, with a jam layer between */
+	background: linear-gradient(to bottom,
+		#5c2e1f 0px, #5c2e1f 30px,
+		#ddd5cc 30px, #ddd5cc 45px,
+		#5c2e1f 45px, #5c2e1f 48px,
+		#f2ccd8 48px, #f2ccd8 57px,
+		#5c2e1f 57px, #5c2e1f 60px,
+		#ddd5cc 60px, #ddd5cc 75px,
+		#5c2e1f 75px, #5c2e1f 100px);
+}
+
+.piece-main .sponge:after {
+	right: 0;
+	box-shadow: inset 3px 0 4px rgba(0, 0, 0, 0.25);
+}
+
+.piece-slice .sponge:after {
+	left: 0;
+	box-shadow: inset -3px 0 4px rgba(0, 0, 0, 0.25);
+}
+
+.cake.cut .piece .sponge:after,
+.cake.cut .piece .frosting:after {
+	opacity: 1;
+}
+
+.cake.cut .piece-main {
+	transform: translateX(-4px);
+}
+
+.cake.cut .piece-slice {
+	transform: translateX(30px) rotate(-5deg);
+}
+
+/* ---------- knife ---------- */
+.knife {
+	position: absolute;
+	left: 174px;
+	top: 150px;
+	width: 12px;
+	height: 150px;
+	opacity: 0;
+	z-index: 30;
+	transform-origin: 50% 100%;
+}
+
+.knife .handle {
+	position: absolute;
+	top: 0;
+	left: 1px;
+	width: 10px;
+	height: 44px;
+	background: #333333;
+	border-radius: 3px 3px 1px 1px;
+}
+
+.knife .blade {
+	position: absolute;
+	top: 44px;
+	left: 0;
+	width: 12px;
+	height: 106px;
+	background: linear-gradient(to right, #c9d1d9 0%, #f7fafc 45%, #a9b3bd 100%);
+	border-radius: 0 0 5px 5px;
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes knife-cut {
+	0% {
+		opacity: 0;
+		transform: translateY(-210px) rotate(-14deg);
+	}
+
+	12% {
+		opacity: 1;
+		transform: translateY(-150px) rotate(-10deg);
+	}
+
+	40% {
+		opacity: 1;
+		transform: translateY(0) rotate(0deg);
+	}
+
+	62% {
+		opacity: 1;
+		transform: translateY(0) rotate(0deg);
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(-210px) rotate(-6deg);
+	}
+}
+
+.cake.cutting .knife {
+	animation: knife-cut 1.7s cubic-bezier(0.5, 0.05, 0.35, 1) forwards;
+}
+
+/* ---------- crumbs ---------- */
+.crumb {
+	position: absolute;
+	width: 5px;
+	height: 5px;
+	background: #5c2e1f;
+	border-radius: 1px;
+	opacity: 0;
+	z-index: 25;
+}
+
+/* tops are capped so a crumb's 30px fall still lands on the plate, not through it */
+.crumb.c1 { left: 176px; top: 248px; }
+.crumb.c2 { left: 184px; top: 240px; }
+.crumb.c3 { left: 172px; top: 252px; }
+.crumb.c4 { left: 188px; top: 244px; }
+.crumb.c5 { left: 180px; top: 236px; }
+
+@keyframes crumb-fall {
+	0% {
+		opacity: 0;
+		transform: translateY(-6px) rotate(0deg);
+	}
+
+	15% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(30px) rotate(200deg);
+	}
+}
+
+.cake.cut .crumb {
+	animation: crumb-fall 0.85s ease-in forwards;
+}
+
+.cake.cut .crumb.c1 { animation-delay: 0.05s; }
+.cake.cut .crumb.c2 { animation-delay: 0.15s; }
+.cake.cut .crumb.c3 { animation-delay: 0.10s; }
+.cake.cut .crumb.c4 { animation-delay: 0.22s; }
+.cake.cut .crumb.c5 { animation-delay: 0.30s; }
+
+/* ---------- candle smoke ---------- */
+.smoke {
+	position: absolute;
+	top: 112px;
+	left: 50%;
+	margin-left: -4px;
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: rgba(200, 200, 200, 0.55);
+	opacity: 0;
+	z-index: 20;
+	filter: blur(2px);
+}
+
+@keyframes smoke-rise {
+	0% {
+		opacity: 0;
+		transform: translate(0, 0) scale(0.5);
+	}
+
+	25% {
+		opacity: 0.7;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translate(-14px, -70px) scale(2.6);
+	}
+}
+
+@keyframes smoke-rise-2 {
+	0% {
+		opacity: 0;
+		transform: translate(0, 0) scale(0.5);
+	}
+
+	25% {
+		opacity: 0.6;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translate(12px, -78px) scale(2.2);
+	}
+}
+
+.cake.cut .smoke {
+	animation: smoke-rise 1.8s ease-out 0.25s forwards;
+}
+
+.cake.cut .smoke-2 {
+	animation: smoke-rise-2 1.8s ease-out 0.6s forwards;
 }
 .message {
 	margin-top: 200px;

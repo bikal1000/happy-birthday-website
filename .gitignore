@@ -1,0 +1,16 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Compiled LESS output (cake.less is compiled in the browser by less.js)
+css/*.css.map
+
+# Dependencies, if tooling is ever added
+node_modules/
