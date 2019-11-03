@@ -2,6 +2,8 @@
 
 An interactive, animated birthday page you can send someone special. Lights turn on, balloons fly in, candles light up, cake gets cut, and a scrolling message plays out — all triggered by a row of buttons at the bottom.
 
+**[Live demo](https://bikal1000.github.io/happy-birthday-website/)**
+
 ## Features
 
 - Twinkling bulb lights
